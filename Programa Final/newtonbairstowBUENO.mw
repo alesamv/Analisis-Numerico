@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Worksheet><Version major="6" minor="1"/><View-Properties><Zoom percentage="100"/></View-Properties><Styles><Layout alignment="left" bullet="none" firstindent="0.0" leftmargin="0.0" linebreak="space" linespacing="0.0" name="Normal" rightmargin="0.0" spaceabove="0.0" spacebelow="0.0"/><Layout alignment="centred" bullet="none" firstindent="0.0" leftmargin="0.0" linebreak="space" linespacing="0.5" name="Maple Output" rightmargin="0.0" spaceabove="0.0" spacebelow="0.0"/><Font background="[0,0,0]" bold="true" executable="true" family="Monospaced" foreground="[255,0,0]" italic="false" name="Maple Input" opaque="false" readonly="false" size="12" subscript="false" superscript="false" underline="false"/><Font background="[0,0,0]" bold="false" executable="false" family="Monospaced" foreground="[0,0,255]" italic="false" name="Line Printed Output" opaque="false" readonly="true" size="12" subscript="false" superscript="false" underline="false"/><Font background="[0,0,0]" bold="false" executable="false" family="Times New Roman" foreground="[0,0,255]" italic="false" name="2D Output" opaque="false" readonly="true" size="12" subscript="false" superscript="false" underline="false"/></Styles><Group><Input><Text-field layout="Normal" prompt="&gt; " style="Maple Input">#Monroy Velazquez Alejandra Sarahi
+restart:
+f:=x**8+I;
+#f:=3.5*x**4+2.75*x**3+2.125*x**2-3.875*x+1.25;
+r:=1: 
+s:=11: 
+tolerancia:=0.0000001: 
+iter:=10000:
+crit:=100:
+n:=degree(f):
+a:=vector(n+1,[]):
+b:=vector(n+1,[]):
+c:=vector(n,[]):
+
+#Obtenemos los coeficientes del polinomio
+for i from n+1 to 1 by -1 do
+    a[i]:=coeff(f,x,n-i+1):
+od:
+
+for k from 1 to iter do
+	if n&gt;=3 then
+		#Encontrando valores de b
+		for i from 1 to n+1 do
+			if i=1 then
+				b[i]:=a[i]:
+			elif i=2 then 
+				b[i]:=a[i]+r*(b[i-1]):
+			else
+				b[i]:=a[i]+r*(b[i-1])+s*(b[i-2]):
+			fi;
+		od;
+		
+		#Encontrando valores de c
+		for i from 1 to n do
+			if i=1 then
+				c[i]:=b[i]:
+			elif i=2 then 
+				c[i]:=b[i]+r*(c[i-1]):
+			else
+				c[i]:=b[i]+r*(c[i-1])+s*(c[i-2]):
+			fi;
+		od;
+
+		#Encontrando valores de deltaR y deltaS aplicando Cramer
+		dr:=(((-b[n]*c[n-1])-(c[n-2]*(-b[n+1])))/((c[n-1]*c[n-1])-(c[n-2]*c[n]))):
+ds:=(((c[n-1]*(-b[n+1]))-((-b[n])*c[n]))/((c[n-1]*c[n-1])-(c[n-2]*c[n]))):
+		
+                #Reasignando valores a r y s		
+                rr:=evalf(r+dr):
+		ss:=evalf(s+ds): 
+		
+		if r &gt; crit and s &gt; crit then
+			printf("Cambia tus valores de r y s.");
+			break:
+
+		else
+		#Calculo de errores
+		erryR:=abs(rr-r):
+		erryS:=abs(ss-s):
+
+		#Si ambos errores son menores a la tolerancia, hay raices
+		if erryR &lt;=tolerancia and erryS &lt;= tolerancia then
+			discriminante:=r**2+4*s:
+			r1:=((r+sqrt(discriminante))/2):
+			r2:=((r-sqrt(discriminante))/2):
+	
+			printf("\n\nRaices:\n");
+			#Impresion de la primer raiz 
+			if Im(r1) = 0 then
+				printf("%g\n",r1);
+			else
+				printf("%g + %gi\n",Re(r1),Im(r1));
+			fi;
+                        #Impresion de la segunda raiz 
+			if Im(r2) = 0 then
+				printf("%g\n",r2);
+			else
+				printf("%g + %gi\n",Re(r2),Im(r2));
+			fi;
+			n:=n-2:
+				
+			#Actualizando valores de a
+			for i from 1 to n+1 do
+				a[i]:=b[i]:
+			od:
+			
+			#Impresion de los coeficientes del nuevo polinomio
+			printf("\n\n-Coeficientes del polinomio reducido: \n");
+			for i from 1 to n+1 do
+				if Im(b[i]) = 0 then
+					printf("%g    ",b[i]);
+				else
+					printf("%g + %gi    ",Re(b[i]),Im(b[i]));
+				fi;
+			od;
+                else
+                    r:=rr:
+                    s:=ss:
+		fi;
+		fi;
+	elif n=2 then
+		disc:=a[2]**2-4*a[3]*a[1]:
+		r1:=((-a[2]+sqrt(disc))/(2*a[1])):
+		r2:=((-a[2]-sqrt(disc))/(2*a[1])):
+
+		printf("\n\nRaices:\n");
+		#Impresion de la primer raiz si tiene parte imaginaria
+		if Im(r1) = 0 then
+			printf("%g\n",r1);
+		else
+			printf("%g + %gi\n",Re(r1),Im(r1));
+		fi;
+                #Impresion de la segunda raiz si es real
+		if Im(r2) = 0 then
+			printf("%g\n",r2);
+		else
+			printf("%g + %gi\n",Re(r2),Im(r2));
+		fi;     
+		break:
+	else	
+		b[1]:=a[1]:
+		b[2]:=a[2]:
+		rult:=((-b[2])/b[1]):
+		printf("\n\nRaiz:\n");
+                if Im(rult) = 0 then
+			printf("%g\n",rult);
+		else
+			printf("%g + %gi\n",Re(rult),Im(rult));
+		fi;
+		break:
+	fi:
+od:	
+
+		
+
+</Text-field></Input><Input><Text-field alignment="left" bullet="none" firstindent="0.0" leftmargin="0.0" linebreak="space" linespacing="0.0" prompt="&gt; " rightmargin="0.0" spaceabove="0.0" spacebelow="0.0" style="Maple Input"/></Input><Output><Text-field layout="Maple Output" style="2D Output"><Equation>NiM+SSJmRzYiLCYqJEkieEdGJSIiKSIiIl4jRipGKg==</Equation></Text-field><Text-field layout="Normal" style="Line Printed Output">
+
+Raices:
+0.980785 + -0.19509i
+-0.980785 + 0.19509i
+
+
+-Coeficientes del polinomio reducido: 
+1    -1.1460e-12 + 4.179e-13i    0.92388 + -0.382683i    -1.79768e-12 + 1.64929e-12i    0.707107 + -0.707107i    -1.54453e-12 + 3.31753e-12i    0.382683 + -0.92388i    
+
+Raices:
+0.19509 + 0.980785i
+-0.19509 + -0.980785i
+
+
+-Coeficientes del polinomio reducido: 
+1    2.7e-20 + -1.07e-20i    -2.19e-08 + 9.1e-09i    -1.79769e-12 + 1.64929e-12i    0.707107 + -0.707107i    
+
+Raices:
+0.55557 + -0.83147i
+-0.55557 + 0.83147i
+
+
+-Coeficientes del polinomio reducido: 
+1    4.17900e-13 + 1.14600e-12i    -0.382683 + -0.92388i    
+
+Raices:
+0.83147 + 0.55557i
+-0.83147 + -0.55557i</Text-field></Output></Group><Group><Input><Text-field layout="Normal" prompt="&gt; " style="Maple Input">evalf(solve(f));</Text-field></Input><Output><Text-field layout="Maple Output" style="2D Output"><Equation>NiZeJCQhK1Q8WW8hKSEjNSQhK2koZUMvIiEiKl4kRiQkIitpKGVDLyJGKV4kJCIrOC4qKVJURiYkIStcVWhaPUYmXiRGLiQiK1xVaFo9RiY=</Equation></Text-field></Output></Group><Group><Input><Text-field layout="Normal" prompt="&gt; " style="Maple Input"/></Input></Group><Group><Input><Text-field layout="Normal" prompt="&gt; " style="Maple Input"/></Input></Group><Text-field alignment="left" bullet="none" firstindent="0.0" leftmargin="0.0" linebreak="space" linespacing="0.0" rightmargin="0.0" spaceabove="0.0" spacebelow="0.0"/><Text-field alignment="left" bullet="none" firstindent="0.0" leftmargin="0.0" linebreak="space" linespacing="0.0" rightmargin="0.0" spaceabove="0.0" spacebelow="0.0"/><Text-field alignment="left" bullet="none" firstindent="0.0" leftmargin="0.0" linebreak="space" linespacing="0.0" rightmargin="0.0" spaceabove="0.0" spacebelow="0.0"/><Text-field alignment="left" bullet="none" firstindent="0.0" leftmargin="0.0" linebreak="space" linespacing="0.0" rightmargin="0.0" spaceabove="0.0" spacebelow="0.0"/><Text-field alignment="left" bullet="none" firstindent="0.0" leftmargin="0.0" linebreak="space" linespacing="0.0" rightmargin="0.0" spaceabove="0.0" spacebelow="0.0"/><Text-field/><Text-field/><Text-field/><Text-field/></Worksheet>
